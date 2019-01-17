@@ -9,4 +9,18 @@
   </tr>
   <%= render "graders/grader_file_picker", f: f, id: f.object.id.to_s,
       label: "Custom configuration:", schema: "java-style-schema" %>
+  <tr>
+    <td class="col-sm-2"><%= f.label "upload_file", "Custom configuration:" %></td>
+    <td class="col-sm-3"><%= f.file_field "upload_file" %>
+      <% if f.object.upload %>
+        <br>Current file: <%= link_to f.object.upload_file, f.object.upload.path %>
+      <% end %>
+    </td>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="col-sm-2"><%= f.label "Custom Name" %></td>
+    <td class="col-sm-3"><%= f.text_field "custom_name" %></td>
+    <td></td>
+  </tr>
 </table>
