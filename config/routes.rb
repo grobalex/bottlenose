@@ -1,4 +1,5 @@
 Bottlenose::Application.routes.draw do
+  get 'grading_conflicts/index'
   resources :sandboxes
 
   # Using devise for user auth.
@@ -157,6 +158,7 @@ Bottlenose::Application.routes.draw do
     end
   end
 
+  get   'courses/:course_id/conflicts' => 'grading_conflicts#index'
   get   'courses/:course_id/assignments/:id/user/:user_id' => 'assignments#show_user', as: 'course_assignment_user'
   get   'courses/:course_id/assignments/:id/tarball' => 'assignments#tarball', as: 'course_assignment_tarball'
   patch 'courses/:course_id/assignments/:id/publish' => 'assignments#publish', as: 'course_assignment_publish'
@@ -164,6 +166,7 @@ Bottlenose::Application.routes.draw do
   patch 'clear_queue' => 'main#clear_queue', as: 'clear_queue'
 
   Bottlenose::Application.routes.draw do
+  get 'grading_conflicts/index'
   resources :sandboxes
 
     match "/500", :to => "errors#internal_server_error", :via => :all

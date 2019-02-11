@@ -1,0 +1,7 @@
+<h1>GradingConflicts#index</h1>
+
+<% if @role == "professor" %>
+<%= render "users/table", header: "Staff", role: @role, course: @course, users: @staff %>
+<% else %>
+<%= render "grading_conflicts/table", header: "Students", role: @role, course: @course, users: @students %>
+<% end %>
