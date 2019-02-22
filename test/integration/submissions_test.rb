@@ -1,9 +1,12 @@
 # coding: utf-8
 require 'test_helper'
+require 'headless'
 
 class SubmissionsTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
   setup do
+    headless = Headless.new
+    headless.start
     DatabaseCleaner.clean
     Capybara.current_driver = :webkit
     make_standard_course
@@ -370,4 +373,5 @@ class SubmissionsTest < ActionDispatch::IntegrationTest
       assert_not_includes(targets, tid, "Team #{tid} should not review itself")
     end
   end
+  headless.destroy
 end

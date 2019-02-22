@@ -1,0 +1,71 @@
+  <% link_to_students = current_user.site_admin? || current_user.professor_ever? %>
+  <style>
+  select option:disabled {
+    color: #cccccc;
+  }
+  .fixed-panel {
+    min-height: 360px;
+    max-height: 360px;
+    overflow-y: scroll;
+    border: thin solid grey;
+  }
+</style>
+<div class="well">
+  <div class="row form-group" style="vertical-align: middle;">
+    <div class="col-sm-4">
+      <%= select_tag 'student_options', options_from_collection_for_select(users, 'id', 'name' ), size: 20,
+      multiple: false, class: "form-control" %>
+    </div>
+    <div class="col-sm-4 text-center">
+      <button class='btn btn-primary' id= "conflict">Conflict</button>
+    </div>
+    <div class="col-sm-4">
+      <div class="panel panel-body fixed-panel">
+
+        <%= form_tag(update_course_grading_conflicts_path, method: "patch") do %>
+        <%= hidden_field_tag(:staff_id, "5") %>
+        <table id="conflict_list" class="table">
+          <% conflicts.each do |conflict| %>
+          <tr>
+            <td>
+            <%= maybe_link_user(link_to_students, conflict.student_user) %>
+          </td>
+          <td>
+          </td>
+          </tr>
+          <% end %>
+        </table> 
+      </div>
+    </div>
+  </div>
+  <h3 class="menu-separator"></h3>
+</br>
+<%= submit_tag("Save All") %>
+<% end %>
+</div>
+<script>
+  $('#conflict_list').on('click', '#delete', function (e) { 
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    let row = $(this).closest('tr');
+    let id = row.find('td:first-child').attr('id');
+    $('#student_options option[value="' + id + '"]').removeAttr('disabled');
+    row.remove();
+  }); 
+  $('#conflict').click(function(){
+    var student = $('#student_options option:selected');
+    if (student.length == 1) {
+      let tr = $('<tr></tr>')
+      let td = $('<td>'+ student.text() +'</td>').attr("id", student.val());
+      let hidden = $('<td></td>').append('<input type="hidden" name="students_id[]" value="'+student.val()+'">')
+      let button = $('<td></td>').append($('<button>Remove</button>').attr({class: "btn btn-danger", 'id': 'delete'})); 
+      tr.append(td)
+      tr.append(hidden)
+      tr.append(button)
+      $('#conflict_list').append(tr);
+      student.prop('disabled', true);
+      student.removeAttr('selected');
+    }
+
+  });
+</script>    

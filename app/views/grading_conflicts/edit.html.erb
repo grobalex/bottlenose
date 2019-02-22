@@ -1,7 +1,7 @@
 <h1>Grading Conflicts</h1>
 </br>
 <% if @role == "professor" %>
-<%= render "grading_conflicts/professor_table", course: @course, users: @staff %>
+<%= render "grading_conflicts/professor_table", course: @course, students: @students, staff: @staff, conflicts: @conflicts %>
 <% else %>
 <div class="well">
 <p>
@@ -12,5 +12,5 @@
   </p>
 </div>
 
-<%= render "grading_conflicts/staff_table", header: "Students", role: "Grader", course: @course, users: @students %>
+<%= render "grading_conflicts/staff_table", header: "Students", role: "Grader", course: @course, users: @students, conflicts: @conflicts %>
 <% end %>

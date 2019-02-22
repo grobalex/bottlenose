@@ -6,11 +6,10 @@ class AddUserTest < ActionDispatch::IntegrationTest
   end
 
   test "add a student" do
-    skip
 
     # Log in as a professor
-    visit "/main/auth?email=#{@fred.email}&key=#{@fred.auth_key}"
-
+    visit "/main/auth?email=#{@fred.email}&key=#{@fred.encrypted_password}"
+    print page.html
     assert has_content?("Logged in as #{@fred.name}")
 
     click_link 'Your Courses'

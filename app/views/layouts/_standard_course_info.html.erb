@@ -63,6 +63,9 @@
             <% if current_user.site_admin? || cur_reg&.staff? %>
               <%= link_to "Student Facebook", facebook_course_path(@course), class: "btn btn-sm btn-default" %>
             <% end %>
+            <% if current_user.site_admin? || cur_reg&.staff? %>
+              <%= link_to "Grading Conflicts", edit_course_grading_conflicts_path(@course), class: "btn btn-sm btn-default" %>
+            <% end %>
             <% if current_user.site_admin? || cur_reg&.professor? %>
               <%= link_to "Edit Course Settings", edit_course_path(@course), class: "btn btn-sm btn-default" %>
               <div class="dropdown btn btn-link pull-right">

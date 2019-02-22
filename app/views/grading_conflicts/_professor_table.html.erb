@@ -1,0 +1,97 @@
+<% link_to_students = current_user.site_admin? || current_user.professor_ever? %>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title"
+    style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+    <span style="flex: 1;">Edit</span>
+  </h3>
+</div>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th class="col-sm-3">Staff Name</th>
+      <th class="col-sm-3">Student Name</th>
+      <th class="col-sm-1"></th>
+      <th class="col-sm-1"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% conflicts.each do |conflict| %>
+    <tr>
+      <td>
+        <form id="reg_<%= conflict.id %>">
+          <input type="hidden" name="id" value="<%= conflict.id %>" />
+        </form>
+        <%= conflict.staff_user %>
+      </td>
+      <td>
+        <%= conflict.student_user %>
+      </td>
+      <td>
+        <%= submit_tag "Delete",
+            {form: "reg_#{conflict.id}", id: "submit_#{conflict.id}",
+             class: "btn btn-danger"} %></td>
+      </td>
+    <td style="white-space: nowrap;">
+        <span style="padding: 6px;">
+          <i id="failure_<%= conflict.id %>" style="font-size: 150%; top: 6px;"
+             class="hidden text-danger glyphicon glyphicon-remove"
+             data-toggle="tooltip" title="Deletion of conflict failed"
+           ></i></span><%= submit_tag "Save",
+            {form: "reg_#{conflict.id}", id: "submit_#{conflict.id}",
+             class: "btn btn-default hidden"} %></td>
+    </tr>
+    <% end %>
+    <tr>
+      <td>
+        <form id="new_conflict">
+        </form>
+        <%= select_tag 'student_options', options_from_collection_for_select(staff, 'id', 'name' ), size: 1,
+      multiple: false, class: "form-control" %>
+      </td>
+      <td>
+        <%= select_tag 'student_options', options_from_collection_for_select(students, 'id', 'name' ), size: 1,
+      multiple: false, class: "form-control" %>
+      </td>
+    <td style="white-space: nowrap;">
+        <span style="padding: 6px;">
+          <i id="failure_new_conflict" style="font-size: 150%; top: 6px;"
+             class="hidden text-danger glyphicon glyphicon-remove"
+             data-toggle="tooltip" title="Deletion of conflict failed"
+           ></i></span><%= submit_tag "Save",
+            {form: "reg_new_conflict", id: "submit_new_conflict",
+             class: "btn btn-default hidden"} %></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<script>
+  $("form").submit(function() {
+    var $form = $(this);
+    var $failure = $("#" + $form.attr("id").replace('reg', 'failure'));
+    var valuesToSubmit = $form.serialize();
+    $.ajax({
+        type: "PATCH",
+        url: "<%= update_course_grading_conflicts_path(@course) %>",
+        data: valuesToSubmit,
+        dataType: "JSON"
+    }).done(function(json){
+      $form.closest('tr').remove()
+    }).fail(function(_, msg, errorText) {
+      $failure.removeClass("hidden").attr('title', errorText).tooltip('fixTitle');
+      $submit.removeClass("hidden");
+    });
+    return false; // prevents normal behaviour
+  }).map(function() {
+    var $form = $(this);
+    $form.parents("tr").find("input, select").change(function() {
+      $("#success_" + $form.find("input[name='id']").val()).addClass("hidden");
+    });
+  });
+  $("select, input[type!='submit']").change(function(e) {
+     $(e.target).parents("tr").find("input[type='submit']").attr("disabled", false).removeClass("hidden");
+     $(e.target).parents("tr").find("i.text-success").addClass("hidden");
+     $(e.target).parents("tr").find("i.text-danger").addClass("hidden");
+  });
+</script>

@@ -78,16 +78,13 @@ class ActiveSupport::TestCase
     fixture_file_upload(assign_upload(assign, suffix), 'application/octet-stream')
   end
 
-  def make_assignment(bb, name)
-    ts.save!
-    aa = build(:assignment, bucket: bb, course: bb.course, name: name, teamset: ts1)
-    aa.assignment_file = assign_upload_obj(name, 'assign.tar.gz')
-    aa.grading_file    = assign_upload_obj(name, 'grading.tar.gz')
-    aa.save_uploads!
+  def make_assignment(course ,name, team)
+    aa = build(:assignment, course: course, name: name, teamset: team)
     aa.save!
 
     aa
   end
+
 
   def make_submission(uu, aa, file)
     sub = create(
@@ -158,7 +155,8 @@ class ActionDispatch::IntegrationTest
   end
 
   def login_as(user)
-    visit "/main/auth?email=#{user.email}&key=#{user.auth_key}"
+    visit "/main/auth?email=#{user.email}&key=#{user.encrypted_password}"
+    print page.html
     assert has_content?("Logged in as #{user.name}")
   end
 end
