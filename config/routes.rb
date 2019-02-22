@@ -25,6 +25,13 @@ Bottlenose::Application.routes.draw do
   resources :terms
 
   resources :courses, except: [:destroy] do
+    resources :grading_conflicts, only: [] do 
+      collection do
+        get 'edit' => 'grading_conflicts#edit', as: 'edit'
+        patch 'update' => 'grading_conflicts#update', as: 'update'
+      end
+    end  
+
     resources :grades, only: [] do
       collection do
         get 'stats' => 'grader_allocations#stats', as: 'stats'
@@ -72,6 +79,7 @@ Bottlenose::Application.routes.draw do
           delete :delete_all
         end
       end
+  
       resources :graders, only: [] do
         member do
           get 'bulk' => 'grades#bulk_edit'
@@ -158,7 +166,6 @@ Bottlenose::Application.routes.draw do
     end
   end
 
-  get   'courses/:course_id/conflicts' => 'grading_conflicts#index'
   get   'courses/:course_id/assignments/:id/user/:user_id' => 'assignments#show_user', as: 'course_assignment_user'
   get   'courses/:course_id/assignments/:id/tarball' => 'assignments#tarball', as: 'course_assignment_tarball'
   patch 'courses/:course_id/assignments/:id/publish' => 'assignments#publish', as: 'course_assignment_publish'
