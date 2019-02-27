@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_10_04_011746) do
+ActiveRecord::Schema.define(version: 2019_02_13_184756) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -106,6 +106,13 @@ ActiveRecord::Schema.define(version: 2018_10_04_011746) do
     t.datetime "updated_at"
     t.boolean "available", default: false
     t.index ["submission_id"], name: "index_grades_on_submission_id"
+  end
+
+  create_table "grading_conflicts", force: :cascade do |t|
+    t.integer "course_id", null: false
+    t.integer "staff_user_id", null: false
+    t.integer "student_user_id", null: false
+    t.index ["course_id"], name: "index_grading_conflict_on_course_id"
   end
 
   create_table "individual_extensions", force: :cascade do |t|

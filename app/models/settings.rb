@@ -3,7 +3,7 @@ class Settings
     {
       "site_email"   => 'Bottlenose <noreply@example.com>',
       "backup_login" => '',
-      "site_url"     => '',
+      "site_url"     => 'localhost',
     }
   end
 
