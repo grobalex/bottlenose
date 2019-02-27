@@ -262,7 +262,7 @@ class CourseSpreadsheet < Spreadsheet
       sheet.columns.push(Col.new("#{type.humanize} section", "Number"))
     end
     if @course.total_late_days
-      sheet.columns.push(Col.new("Late Days Remaining", "String"))
+      sheet.columns.push(Col.new("Late Days Remaining", "Number"))
     end 
     sheet.columns.push(Col.new("Withdrawn?", "DateTime"), Col.new(""), Col.new(""))
     labels = sheet.push_header_row(nil, ["", "", "", "", "", "", "", "", ""].push(*course_section_types.count.times.map{|| ""}))
