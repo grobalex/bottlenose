@@ -23,10 +23,10 @@
         <form id="reg_<%= conflict.id %>">
           <input type="hidden" name="id" value="<%= conflict.id %>" />
         </form>
-        <%= conflict.staff_user %>
+        <%= conflict.staff_user.display_name %>
       </td>
       <td>
-        <%= conflict.student_user %>
+        <%= conflict.student_user.display_name %>
       </td>
       <td>
         <%= submit_tag "Delete",
@@ -38,33 +38,39 @@
           <i id="failure_<%= conflict.id %>" style="font-size: 150%; top: 6px;"
              class="hidden text-danger glyphicon glyphicon-remove"
              data-toggle="tooltip" title="Deletion of conflict failed"
-           ></i></span><%= submit_tag "Save",
-            {form: "reg_#{conflict.id}", id: "submit_#{conflict.id}",
-             class: "btn btn-default hidden"} %></td>
+           ></i></td>
     </tr>
     <% end %>
-    <tr>
-      <td>
-        <form id="new_conflict">
-        </form>
-        <%= select_tag 'student_options', options_from_collection_for_select(staff, 'id', 'name' ), size: 1,
-      multiple: false, class: "form-control" %>
-      </td>
-      <td>
-        <%= select_tag 'student_options', options_from_collection_for_select(students, 'id', 'name' ), size: 1,
-      multiple: false, class: "form-control" %>
-      </td>
-    <td style="white-space: nowrap;">
-        <span style="padding: 6px;">
-          <i id="failure_new_conflict" style="font-size: 150%; top: 6px;"
-             class="hidden text-danger glyphicon glyphicon-remove"
-             data-toggle="tooltip" title="Deletion of conflict failed"
-           ></i></span><%= submit_tag "Save",
-            {form: "reg_new_conflict", id: "submit_new_conflict",
-             class: "btn btn-default hidden"} %></td>
-    </tr>
   </tbody>
 </table>
+</div>
+<div class="well">
+<h3>Create a Conflict</h3>
+  <p>
+    Choose a student from the left and a staff member from the right,
+    then click the middle button to create that conflict.
+  </p>
+  <%= form_tag(update_course_grading_conflicts_path, method: "patch") do |f| %>
+
+  <div class="row form-group" style="vertical-align: middle;">
+    <div class="col-sm-4">
+      <%= select_tag(:students_id,
+          options_from_collection_for_select(students, 'id', 'name' ),
+          size: 10,
+          multiple: false, class: "form-control") %>
+    </div>
+    <div class="col-sm-4 text-center">
+      <%= submit_tag "Add Conflict", class: 'btn btn-primary' %>
+    </div>
+    <div class="col-sm-4">
+      <%= select_tag(:staff_id,
+          options_from_collection_for_select(staff, 'id', 'name' ),
+          size: 10,
+          multiple: false, class: "form-control") %>
+    </div>
+  </div>
+  <% end %>
+</div>
 </div>
 <script>
   $("form").submit(function() {

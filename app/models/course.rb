@@ -11,6 +11,7 @@ class Course < ApplicationRecord
   has_many :submissions, through: :assignments
   has_many :teams,       dependent: :destroy
   has_many :teamsets, dependent: :destroy
+  has_many :grading_conflicts, dependent: :destroy
 
   belongs_to :lateness_config
 

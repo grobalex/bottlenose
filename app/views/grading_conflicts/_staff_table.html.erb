@@ -23,7 +23,6 @@
       <div class="panel panel-body fixed-panel">
 
         <%= form_tag(update_course_grading_conflicts_path, method: "patch") do %>
-        <%= hidden_field_tag(:staff_id, "5") %>
         <table id="conflict_list" class="table">
           <% conflicts.each do |conflict| %>
           <tr>
@@ -36,7 +35,7 @@
           <% end %>
         </table> 
       </div>
-    </div>
+    </d
   </div>
   <h3 class="menu-separator"></h3>
 </br>

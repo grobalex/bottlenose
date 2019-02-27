@@ -86,6 +86,17 @@ class GraderAllocationsController < ApplicationController
     params[:weight].permit(who_grades.map{|s| s.id.to_s}).to_h.map do |k, v|
       weights[k.to_i] = (v.to_f / total_weight)
     end
+    prohibitions = @course.grading_conflicts.to_a
+    # unfinished = not assigned assignments 
+    # who_grades = names of students 
+    # weights 
+    # prohibitions = conflicts 
+    p '###############################################'
+    p GraphUtils.assign_graders(unfinished, who_grades, weights, prohibitions)
+    p '###############################################'
+
+    
+
     unfinished.shuffle!
     time = DateTime.now
     who_grades.sort_by! {|g| 0 - weights[g.id] || 0}
