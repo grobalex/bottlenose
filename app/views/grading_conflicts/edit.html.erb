@@ -3,14 +3,21 @@
 <h1>Grading Conflicts</h1>
 </br>
 <% if @role == "professor" %>
+
+<div class="well">
+<p>
+    The table below displays all currently saved conflicts for this course. Use the delete button to remove a conflict.
+  </p>
+</div>
+
 <%= render "grading_conflicts/professor_table", course: @course, students: @students, staff: @staff, conflicts: @conflicts %>
 <% else %>
 <div class="well">
 <p>
-    Use the below slider next to a student's name to indicate that you know this student
-    and therefore cannot grade them. Once you have submitted your conflicts, you will
-    not be able to edit them again. A professor will be required to edit already submitted 
-    conflicts.
+    Select a student from the left side to indicate that you know this student and therefore cannot grade them,
+    then click the middle button to create that conflict.
+    Once you have submitted your conflicts, you will not be able to edit them again. 
+    A professor will be required to edit already submitted conflicts.
   </p>
 </div>
 

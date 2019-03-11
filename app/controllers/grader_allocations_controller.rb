@@ -87,16 +87,14 @@ class GraderAllocationsController < ApplicationController
       weights[k.to_i] = (v.to_f / total_weight)
     end
     prohibitions = @course.grading_conflicts.to_a
-    # unfinished = not assigned assignments 
-    # who_grades = names of students 
-    # weights 
-    # prohibitions = conflicts 
-    p '###############################################'
-    p GraphUtils.assign_graders(unfinished, who_grades, weights, prohibitions)
-    p '###############################################'
+    h = Hash.new{|h,k| h[k] = [] }
+    prohibitions.each do |pr|
+      h[pr.staff_user_id].push(pr.student_user_id)
+    end
 
+    #assign = GraphUtils.assign_graders(unfinished, who_grades, weights, prohibitions)
+    #debugger
     
-
     unfinished.shuffle!
     time = DateTime.now
     who_grades.sort_by! {|g| 0 - weights[g.id] || 0}
@@ -104,14 +102,18 @@ class GraderAllocationsController < ApplicationController
       who_grades.each do |g|
         1.upto(weights[g.id] * ungraded_count) do |i|
           sub = unfinished.pop
-          alloc = GraderAllocation.find_or_initialize_by(
-            submission: sub,
-            who_grades_id: g.id,
-            assignment: @assignment,
-            course: @course)
-          alloc.grading_assigned = time
-          alloc.abandoned = false
-          alloc.save
+          if h[g.id].to_set.disjoint?(sub.users.map(&:id).to_set)
+            alloc = GraderAllocation.find_or_initialize_by(
+              submission: sub,
+              who_grades_id: g.id,
+              assignment: @assignment,
+              course: @course)
+            alloc.grading_assigned = time
+            alloc.abandoned = false
+            alloc.save
+          else
+            unfinished.push(sub)
+          end  
         end
       end
       unfinished.each_with_index do |sub, i|

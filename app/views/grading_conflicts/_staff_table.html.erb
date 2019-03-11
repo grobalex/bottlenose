@@ -23,6 +23,7 @@
       <div class="panel panel-body fixed-panel">
 
         <%= form_tag(update_course_grading_conflicts_path, method: "patch") do %>
+        <%= hidden_field_tag(:staff_id, current_user.id) %>
         <table id="conflict_list" class="table">
           <% conflicts.each do |conflict| %>
           <tr>
@@ -31,15 +32,18 @@
           </td>
           <td>
           </td>
+          <td>
+          </td>
           </tr>
           <% end %>
         </table> 
       </div>
-    </d
+    </div>
   </div>
   <h3 class="menu-separator"></h3>
 </br>
-<%= submit_tag("Save All") %>
+<div class="text-center">
+<%= submit_tag("Save All", class: "btn btn-primary") %>
 <% end %>
 </div>
 <script>

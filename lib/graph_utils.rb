@@ -10,7 +10,6 @@ class GraphUtils
     #   but E = submissions * graders, so we'd get O(submissions ^ 2.5) at best,
     #   and the inefficiencies due to lack of decent data structures means we
     #   wouldn't gain much after all the bookkeeping is done.
-    p weights
     total_weight = weights.values.sum
     sub_to_n = {}
     grader_to_n = {}
@@ -34,13 +33,19 @@ class GraphUtils
     # Connect an appripriate weight of work from each grader to the sink
     graders.each do |g|
       c[grader_to_n[g.id]] = {}
-      c[grader_to_n[g.id]][n] = ((weights[g.id] / total_weight) * submissions.size).ceil
+      c[grader_to_n[g.id]][n] = ((weights[g.id].to_f / total_weight) * submissions.size).ceil
     end
+
+    h = Hash.new{|h,k| h[k] = [] }
+    prohibitions.each do |pr|
+      h[pr.staff_user_id].push(pr.student_user_id)
+    end
+
     # Connect submissions to permitted graders by 1 unit of flow
     submissions.each do |s|
       c[sub_to_n[s.id]] = {}
       graders.each do |g|
-        if prohibitions.include?(s.users.map(&:id))
+        if h[g.id].to_set.disjoint?(s.users.map(&:id).to_set)
           c[sub_to_n[s.id]][g.id] = 1
         end
       end
@@ -140,7 +145,6 @@ class GraphUtils
         p += 1
       end
     end
-
     return @f
   end
 end
