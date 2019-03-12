@@ -13,7 +13,7 @@ class ExamSub < Submission
                      severity: InlineComment.severities["info"],
                      user_id: (who_graded || self.user).id,
                      weight: score,
-                     comment: "",
+                     comment: "No comment needed",
                      suppressed: false,
                      title: "",
                      line: question,
