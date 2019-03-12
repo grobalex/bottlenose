@@ -188,34 +188,34 @@ class GradesController < ApplicationController
     # there should be at most one grading allocation per user per assignment,
     # and at most one grading allocation should not be abandoned at any given time
     # but prefer to find the one for the current user, first
-    alloc = (allocs.find{|a| a.who_grades_id == current_user.id} || allocs.find{|a| !a.abandoned && a.grading_completed.nil?})
-    if alloc && alloc.grading_completed.nil?
-      if alloc.who_grades_id != current_user.id
-        alloc.abandoned = true
+      alloc = (allocs.find{|a| a.who_grades_id == current_user.id} || allocs.find{|a| !a.abandoned && a.grading_completed.nil?})
+      if alloc && alloc.grading_completed.nil?
+        if alloc.who_grades_id != current_user.id
+          alloc.abandoned = true
+          alloc.grading_completed = DateTime.now
+          alloc.save
+          alloc = GraderAllocation.new(
+            assignment: @assignment,
+            course: @course,
+            submission: @submission,
+            who_grades_id: current_user.id,
+            grading_assigned: alloc.grading_assigned)
+        end
+        alloc.abandoned = false
         alloc.grading_completed = DateTime.now
         alloc.save
-        alloc = GraderAllocation.new(
-          assignment: @assignment,
-          course: @course,
-          submission: @submission,
+      elsif alloc.nil?
+        GraderAllocation.create!(
+          abandoned: false,
           who_grades_id: current_user.id,
-          grading_assigned: alloc.grading_assigned)
+          grading_assigned: @assignment.due_date,
+          grading_completed: DateTime.now,
+          course: @course,
+          assignment: @assignment,
+          submission: @submission
+          )        
       end
-      alloc.abandoned = false
-      alloc.grading_completed = DateTime.now
-      alloc.save
-    elsif alloc.nil?
-      GraderAllocation.create!(
-        abandoned: false,
-        who_grades_id: current_user.id,
-        grading_assigned: @assignment.due_date,
-        grading_completed: DateTime.now,
-        course: @course,
-        assignment: @assignment,
-        submission: @submission
-      )        
     end
-  end
 
   def comment_to_inlinecomment(c)
     if c["id"]
@@ -227,41 +227,29 @@ class GradesController < ApplicationController
     if c["shouldDelete"]
       comment
     else
-      begin
-        comment.update!(submission_id: params[:submission_id],
-                        label: c["label"],
-                        filename: Upload.upload_path_for(c["file"]),
-                        line: c["line"],
-                        grade_id: @grade.id,
-                        user_id: current_user.id,
-                        severity: c["severity"],
-                        comment: c["comment"],
-                        weight: c["deduction"],
-                        suppressed: false,
-                        title: "",
-                        info: c["info"])
-        comment
-      rescue Exception => e
-        { id: c["id"], error: e }
-      end
+        begin
+          comment.update!(submission_id: params[:submission_id],
+            label: c["label"],
+            filename: Upload.upload_path_for(c["file"]),
+            line: c["line"],
+            grade_id: @grade.id,
+            user_id: current_user.id,
+            severity: c["severity"],
+            comment: c["comment"],
+            weight: c["deduction"],
+            suppressed: false,
+            title: "",
+            info: c["info"])
+          comment
+        rescue Exception => e
+          { id: c["id"], error: e }
+        end
     end
-  end
+  end  
 
   def question_to_inlinecomment(c)
-    comment = InlineComment.find_or_initialize_by(submission_id: params[:submission_id],
-                                                  grade_id: @grade.id,
-                                                  line: c["index"])
-    comment.update(label: "Graded question",
-                   filename: Upload.upload_path_for(@submission.upload.submission_path),
-                   severity: InlineComment.severities["info"],
-                   user_id: current_user.id,
-                   weight: c["score"],
-                   comment: c["comment"],
-                   suppressed: false,
-                   title: "",
-                   info: nil)
-    comment
-  end
+    @submission.grade_question!(current_user, @grade.id, c["comment"],c["index"], c["score"])
+  end   
 
   ###################################
   # Per-assignment-type actions, by action
@@ -478,9 +466,15 @@ class GradesController < ApplicationController
       f.json { autosave_comments(comments_params, :comment_to_inlinecomment) }
       f.html {
         save_all_comments(comments_params, :comment_to_inlinecomment)
-        mark_grading_allocation_completed
-        redirect_to course_assignment_submission_path(@course, @assignment, @submission),
-                    notice: "Comments saved; grading completed"
+        comments = InlineComment.where(submission_id: @submission.id)
+        if comments.any? {|a| a.comment.empty? } 
+          return redirect_back fallback_location: course_assignment_path(@course, @assignment),
+          alert: "Cannot mark grading complete when a comment has an empty message"
+        else  
+          mark_grading_allocation_completed
+          redirect_to course_assignment_submission_path(@course, @assignment, @submission),
+          notice: "Comments saved; grading completed"
+        end              
       }
     end
   end
