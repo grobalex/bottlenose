@@ -6,7 +6,7 @@ class QuestionsSub < Submission
   validate :check_time_taken
 
 
-  def grade_question!(who_graded, grade_id, message, question, score)
+  def grade_question(who_graded, grade_id, message, question, score)
     comment = InlineComment.find_or_initialize_by(submission: self,  grade_id: grade_id, line: question)
     comment.update(label: "Graded question",
                    filename: self.assignment.name,
