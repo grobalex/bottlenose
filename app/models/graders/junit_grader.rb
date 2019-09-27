@@ -149,7 +149,7 @@ class JunitGrader < Grader
       "junit.tap",
       {},
       ["java", "-cp", "junit-4.12.jar:junit-tap.jar:hamcrest-core-1.3.jar:annotations.jar:.:./*",
-       "edu.neu.TAPRunner", self.test_class,
+       "edu.neu.TAPRunner", *(self.test_class.split(" ")),
        "-timeout", self.test_timeout.to_s],
       {},
       @build_dir
@@ -191,8 +191,11 @@ class JunitGrader < Grader
           ok = false
         end
         if ok
-          if !entries["testing"]["test"]["#{self.test_class}.java"]
-            add_error("There is no #{self.test_class}.java file to match the specified test class")
+          self.test_class.split.each do |tc|
+            next if (tc.starts_with?("-") || (Float(tc) rescue false))
+            if !entries["testing"]["test"]["#{tc}.java"]
+              add_error("There is no #{tc}.java file to match the specified test class")
+            end
           end
           if entries["testing"]["test"]["GradingSandbox.java"]
             add_error("There must not be a class named GradingSandbox")
@@ -205,8 +208,11 @@ class JunitGrader < Grader
           ok = false
         end
         if ok
-          if !entries["test"]["#{self.test_class}.java"]
-            add_error("There is no #{self.test_class}.java file to match the specified test class")
+          self.test_class.split.each do |tc|
+            next if (tc.starts_with?("-") || (Float(tc) rescue false))
+            if !entries["test"]["#{tc}.java"]
+              add_error("There is no #{tc}.java file to match the specified test class")
+            end
           end
           if entries["test"]["GradingSandbox.java"]
             add_error("There must not be a class named GradingSandbox")

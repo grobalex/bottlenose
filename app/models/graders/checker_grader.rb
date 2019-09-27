@@ -153,7 +153,7 @@ class CheckerGrader < Grader
        "-cp", "tester-3.0.jar:javalib.jar:.:./*", "tester.Main",
        "-secmon", "-tap", "-enforceTimeouts",
        "-defaultTimeout", self.test_timeout.to_s,
-       self.test_class],
+       *(self.test_class.split(" "))],
       {},
       @build_dir
     ]
@@ -196,8 +196,11 @@ class CheckerGrader < Grader
           ok = false
         end
         if ok
-          if !entries["testing"]["test"]["#{self.test_class}.java"]
-            add_error("There is no #{self.test_class}.java file to match the specified test class")
+          self.test_class.split.each do |tc|
+            next if (tc.starts_with?("-") || (Float(tc) rescue false))
+            if !entries["testing"]["test"]["#{tc}.java"]
+              add_error("There is no #{tc}.java file to match the specified test class")
+            end
           end
         end
       else
@@ -207,8 +210,11 @@ class CheckerGrader < Grader
           ok = false
         end
         if ok
-          if !entries["test"]["#{self.test_class}.java"]
-            add_error("There is no #{self.test_class}.java file to match the specified test class")
+          self.test_class.split.each do |tc|
+            next if (tc.starts_with?("-") || (Float(tc) rescue false))
+            if !entries["test"]["#{tc}.java"]
+              add_error("There is no #{tc}.java file to match the specified test class")
+            end
           end
         end
       end      
